@@ -1,67 +1,76 @@
+##############
+### IMPORT ###
+##############
 import sys
 import yaml
-import Method
 import os.path
+from ctypes import *
+
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QMainWindow, QMenu, QAction, QFileDialog, QInputDialog
 from PyQt5.Qt import QIcon
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
+
 from PIL import Image, ImageQt
 
+import Method
+from build_Interface_C_PY_Desktop_Release import treatment
+
+##########################
+### Variables globales ###
+##########################
 TIF = ".tif"
 RAW = ".raw"
-EMPTY_PATH = ""
-EMPTY_ARGUMENT = " "
+EMPTY_PATH = "a"
+EMPTY_ARGUMENT = ""
 SEPARATOR = {'Kind': 'Separator'}
-Nx=600
-Ny=500
-Nz=400
+NO_TREATMENT = "No treatment"
+
 REF = 1
 MAIN = 0
 
 # Initialisation de la barre de menu
-menuNames = ["&File","&Reference","&View","&Image Processing","&Points","&Area Operations"]
-menuPaths = ["Fichiers YAML/File.txt","Fichiers YAML/Reference.txt","Fichiers YAML/View.txt","Fichiers YAML/ImageProcessing.txt","Fichiers YAML/Points.txt","Fichiers YAML/AreaOperations.txt"]
+menuNames = ["&File", "&Reference", "&View", "&Image Processing", "&Points","&Area Operations", "&Treatment"]
+menuPaths = ["Fichiers YAML/File.txt", "Fichiers YAML/Reference.txt", "Fichiers YAML/View.txt", "Fichiers YAML/ImageProcessing.txt", "Fichiers YAML/Points.txt", "Fichiers YAML/AreaOperations.txt", "Fichiers YAML/Treatment.txt"]
 
 
 
 
 app = QApplication.instance()
-if not app: # On ne peut avoir qu'une seule instance de QApplication ouverte à la fois
+if not app:
     app = QApplication(sys.argv)
 
-class Window(QMainWindow) : # QMainWindow offre un cadre propice au développement d'une fenêtre utilisateur
+class Window(QMainWindow) :
     """Cette classe contient une fenêtre utilisateur et des méthodes pour l'interface graphique d'un logiciel de traitement d'images"""
     
     def __init__(self):
         QMainWindow.__init__(self)
         
         # Initialisation de la fenêtre
-        self.setWindowTitle("CMV_3D") # titre
-        self.resize(600,600) # taille
-        self.move(400,100) # position
+        self.setWindowTitle("CMV_3D")
+        self.resize(600,600)
+        self.move(400,100)
         
         # Attributs relatifs aux images
-        self.imagePaths = [EMPTY_PATH,EMPTY_PATH] #path de l'image principale en 0, path de l'image de ref en 1
-        self.imageExtensions = [EMPTY_PATH,EMPTY_PATH] #extension de l'image principale en 0, extension de l'image de ref en 1
-        self.imageSlice = 0
-        self.imageDims = [[0,0,0,0],[0,0,0,0]] # [x,y,z,size_of_int], on utilisera ces imagedims dans le cas des .raw
-        self.ref = MAIN #image que l'on veut afficher (MAIN = 0 : image principale, REF = 1 : image de ref)
+        self.imagePaths = [EMPTY_PATH, EMPTY_PATH] # path de l'image principale en 0, path de l'image de ref en 1
+        self.imageExtensions = [EMPTY_PATH, EMPTY_PATH] # extension de l'image principale en 0, extension de l'image de ref en 1
+        self.imageDims = [{"Nx" : 0, "Ny" : 0, "Nz" : 0, "dtype" : 0}, {"Nx" : 0, "Ny" : 0, "Nz" : 0, "dtype" : 0}]
+        self.imageSlice = [0, 0]
+        self.ref = MAIN # image que l'on veut afficher (MAIN = 0 : image principale, REF = 1 : image de ref)
+        self.label = QLabel() # container pour l'image
         
-        # Attributs concernants le zoom
+        # Attributs relatifs aux zooms
         self.clic = []
-        self.zoom = False
         
         # Création des menus
         for i in range(len(menuNames)) :
-            self.__createMenu(menuNames[i],menuPaths[i])
+            self.__createMenu(menuNames[i], menuPaths[i])
         
         # Image Principale et Commentaire
-        self.setImage(self.ref)
         self.statusBar().showMessage("Welcome, please choose an image !")
     
     
-    
-    def __createMenu(self,name,path) :
+    def __createMenu(self, name, path) :
         """Fonction qui crée les menus à partir des fichiers yaml, dans lesquels les informations sont stockées. Les noms de menus sont stockés dans name et les chemins vers les fichier yaml sont stockés dans path"""
         with open(path) as file:
             data = yaml.full_load(file)
@@ -70,116 +79,196 @@ class Window(QMainWindow) : # QMainWindow offre un cadre propice au développeme
             Menu = mainMenu.addMenu(name)
             
             for i in range(len(data)) :
-                
-                if data[i]==SEPARATOR :
+                if (data[i] == SEPARATOR) :
                     Menu.addSeparator()
                 
                 else :
                     action = QAction("unknown", self)
-                    if data[i]["Image"]=="None" :
+                    
+                    if (data[i]["Image"] == "None") :
                         action = QAction(data[i]["Title"], self)
                     else :
                         action = QAction(QIcon(data[i]["Image"]), data[i]["Title"], self)
+                    
                     action.setShortcut(data[i]["Shortcut"])
                     action.setStatusTip(data[i]["Status"])
                     if (data[i]["Method"] != EMPTY_ARGUMENT) :
                         action.triggered.connect(getattr(self, data[i]["Method"]))
                     Menu.addAction(action)
-    
-    def setImage(self, ref) :
-        """Fonction qui affiche l'image[ref] au niveau de la couche[ref] en l'encapsulant dans un QLabel"""
+
+####################################################
+### Méthodes relatives à l'affichage d'une image ###
+####################################################
+def getPath(self, ref) :
+    """Fonction qui permet à l'utilisateurs de choisir une image dans ses dossiers.
+        On peut accèder à des fichier tif et raw."""
+            try :
+            # Enregistrement du Path
+            path = QFileDialog.getOpenFileName(self, 'Open File', os.path.expanduser("~"), "(*.raw *.tif)")[0]
+            self.imagePaths[ref] = path
+            
+            #Enregistrement de l'Extension (.tif ou .raw ?)
+            self.imageExtensions[ref] = os.path.splitext(path)[1]
+                
+                except IndexError : # peut survenir dans l'accession à l'extension
+                    self.statusBar().showMessage("You did not choose any file")
+                    raise
+
+def getDimsOfImage(self, ref) :
+    """Fonction qui permet d'accéder au dimensions de l'image (Nx,Ny,Nz,size_of_int). On accède à ces dimensions en demandant explicitement à l'utilisateur de les indiquer."""
         try :
-            label = Method.createLabel(self, ref)
-            self.setCentralWidget(label)
+            assert(self.imageExtensions[ref] != EMPTY_PATH)
+            
+            # Tif
+            if (self.imageExtensions[ref] == TIF) :
+                dimensions = QInputDialog.getText(self, "What are the dimensions of your file ?", "Nz;size_of_int :")[0]
+                
+                image = Image.open(self.imagePaths[ref]) #Image.open est une fonction "lazy", elle ne charge pas l'image
+                self.imageDims[ref]["Nx"], self.imageDims[ref]["Ny"] = image.size
+                self.imageDims[ref]["Nz"], self.imageDims[ref]["dtype"] = int(dimensions.split(";")[0]), int(dimensions.split(";")[1])
+                print (self.imageDims[ref])
+            
+            # Raw
+            elif (self.imageExtensions[ref] == RAW) :
+                dimensions = QInputDialog.getText(self, "What are the dimensions of your file ?", "Nx;Ny;Nz;size_of_int :")[0]
+                self.imageDims[ref]["Nx"], self.imageDims[ref]["Ny"], self.imageDims[ref]["Nz"], self.imageDims[ref]["dtype"] = int(dimensions.split(";")[0]), int(dimensions.split(";")[1]), int(dimensions.split(";")[2]), int(dimensions.split(";")[3])
+    
+    
+    except ValueError :
+        self.statusBar().showMessage("Make sure you use the correct formalism (use ;)")
+        raise
+        except AssertionError :
+            self.statusBar().showMessage("You did not choose any file")
+            raise
+    except IndexError :
+        self.statusBar().showMessage("Make sure you enter all the 2 or 4 dimensions")
+        raise
+
+def displayImage(self, ref) :
+    """Fonction qui affiche une image"""
+        try :
+            # Accession à l'image
+            array = Method.getArray(self, ref)
+            image = Method.getImage(self, ref, array)
+            self.label.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(image)))
+            
+            # Affichage
+            self.resize(self.imageDims[ref]["Nx"], self.imageDims[ref]["Ny"])
+            self.setCentralWidget(self.label)
             self.statusBar().showMessage("image : " + self.imagePaths[ref])
-        except FileNotFoundError :
-            self.statusBar().showMessage("File cannot be founded")
-        except UnboundLocalError : #dans le cas ou imageExtensions[ref] est ni RAW, ni TIF, dans Method.createLabel, file n'est pas definit mais est appele, c'est une UnboundLocalError
+    except FileNotFoundError :
+        self.statusBar().showMessage("File cannot be founded")
+        except UnboundLocalError :
             self.statusBar().showMessage("probably no file loaded")
 
-def openFile(self, ref):
-    """charge, puis ouvre l'image dont le chemin est celui de imagePaths[ref]"""
+def openFile(self, ref) :
+    """Ouvre un fichier """
         try :
-            newpath = QFileDialog.getOpenFileName(self, 'Open File', os.path.expanduser("~"), "(*.raw *.tif)") #getOpenFileName renvoie un tuple contenant le chemin et le filter
-            self.imagePaths[ref] = newpath[0]
-            self.imageExtensions[ref] = os.path.splitext(newpath[0])[1]
-            
-            if (self.imageExtensions[ref] == RAW) :
-                #    dimensions = QInputDialog.getText(self, "What are the dimensions of your file ?", "Nx;Ny;Nz;size_of_int :")
-                #    for i in range(4) :
-                #       self.imageDims[ref][i] = int(dimensions[0].split(";")[i])
-                self.imageDims[ref] = [Nx,Ny,Nz,8]
-            if (self.imageExtensions[ref] == TIF) :
-                #    dimensions = QInputDialog.getText(self, "What are the dimensions of your file ?", "Nz;size_of_int :")
-                #    for i in range(2,4) :
-                #       self.imageDims[ref][i] = int(dimensions[0].split(";")[i-2])
-                self.imageDims[ref] = [Nx,Ny,Nz,8]
-            
-        self.setImage(ref)
-        
-        except IndexError :
-            #problème intervenant si le path est empty (ce qui en soit n'est pas un problème car l'exception est géré par setImage mais on a alors un indexError lors de l'enregistrement de de imageExtensions[ref])
-            #problème pouvant aussi intervenir si on ne rentre pas toutes les dimensions
-            self.statusBar().showMessage("Error : Choose a file or make sur you enter the 4 dimensions required")
+            self.getPath(ref)
+            self.getDimsOfImage(ref)
+            self.displayImage(ref)
     except ValueError :
-        #erreur survenant lorsqu'on entre les dimensions en ne respectant pas la typographie
-        self.statusBar().showMessage("dims should be written like this : Nx;Ny;Nz;size_of_int")
-    
-    def openMainFile(self):
+        self.statusBar().showMessage("Make sure you use the correct formalism (use ;)")
+        except AssertionError :
+            self.statusBar().showMessage("You did not choose any file")
+    except IndexError :
+        self.statusBar().showMessage("Make sure you enter all the 2 or 4 dimensions")
+
+############################################################
+### Méthodes encapsulées pour utilisation dans les menus ###
+############################################################
+def openMainFile(self) :
+    """Ouvre une image principale"""
         self.ref = MAIN
         self.openFile(self.ref)
     
     def openRefFile(self):
+        """Ouvre une image de référence"""
         self.ref = REF
         self.openFile(self.ref)
     
     def switchImage(self) :
-        self.ref = 1-self.ref
-        self.setImage(self.ref)
-    
-    
-    
-    def chooseSlice(self) :
-        self.imageSlice = QInputDialog.getInt(self, "Which slice do you want to go ?", "Slice : ", min=0, max=max(self.imageDims[MAIN][2], self.imageDims[REF][2]))[0]
-        self.setImage(self.ref)
+        """Cette fonction permet de passer de l'image de référence à l'image principale et inversement."""
+        try :
+            self.ref = 1-self.ref
+            assert(self.imagePaths[self.ref] != EMPTY_PATH)
+            self.displayImage(self.ref)
+        except AssertionError :
+            self.statusBar().showMessage("You have only load one file")
+
+def chooseSlice(self) :
+    """Permet de choisir une couche"""
+        self.imageSlice[self.ref] = QInputDialog.getInt(self,
+                                                        "Which slice do you want to go ?", "Slice : ",
+                                                        min=0,
+                                                        max=max(self.imageDims[MAIN]["Nz"], self.imageDims[REF]["Nz"]))[0]
+        self.displayImage(self.ref)
     
     def previousSlice(self) :
+        """Accède à la couche d'avant"""
         try :
-            assert(self.imageSlice > 0)
-            self.imageSlice -= 1
-            self.setImage(self.ref)
+            assert(self.imageSlice[self.ref] > 0)
+            self.imageSlice[self.ref] -= 1
+            self.displayImage(self.ref)
         except AssertionError :
             self.statusBar().showMessage("there is no previous Slice")
-
-def nextSlice(self) :
-    try :
-        assert(self.imageSlice < self.imageDims[self.ref][2]-1)
-        self.imageSlice += 1
-            self.setImage(self.ref)
+    
+    def nextSlice(self) :
+        """Accède à la couche d'après"""
+        try :
+            assert(self.imageSlice[self.ref] < self.imageDims[self.ref]["Nz"]-1)
+            self.imageSlice[self.ref] += 1
+            self.displayImage(self.ref)
         except AssertionError :
             self.statusBar().showMessage("there is no following Slice")
-                
-                
-                
-                
-                def mousePressEvent(self, event):
-                    if self.zoom == True :
-self.clic.append([event.x(),event.y()])
-if len(self.clic) == 2 :
-    print(self.clic)
+
+####################################
+### Gestion de la souris et zoom ###
+####################################
+def mousePressEvent(self, event):
+    self.clic.append((event.x(),event.y()))
     
-    def zoom_image(self) :
-        self.clic = []
-        self.zoom = True
-        i = 0
-        while len(self.clic) != 2 :
-            i +=1
-        label = QLabel()
-        coord = self.clic
-        image = Method.zoom(Method.choose_slice(self.imageSlice,self.datFile),coord[0][0],coord[0][1],coord[1][0],coord[1][1])
-        label.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(image)))
-        self.setCentralWidget(label)
-        self.zoom = False
+    if (len(self.clic) == 2) :
+        # Identification de la zone de zoom
+        top_left_x, top_left_y = self.clic[0]
+        bottom_right_x, bottom_right_y = self.clic[1]
+        
+        # Réduction de l'image
+        array = Method.getArray(self, self.ref)
+            image = Method.getImage(self, self.ref, array)
+            image = image.crop((top_left_x, top_left_y, bottom_right_x, bottom_right_y))
+            image = image.resize((self.imageDims[self.ref]["Nx"], self.imageDims[self.ref]["Ny"]), resample = Image.NEAREST)
+            
+            # Affichage
+            self.label.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(image)))
+            self.setCentralWidget(self.label)
+            self.clic = []
+
+###########################
+### Traitement d'images ###
+###########################
+def clear(self) :
+    """Clear l'image, travaille à partir de l'ImageQt."""
+        try :
+            # On récupère l'image
+            array = Method.getArray(self, self.ref)
+            image = Method.getImage(self, self.ref, array)
+            image = ImageQt.ImageQt(image)
+            
+            # Traitement
+            Bits = image.bits()
+            treatment.clear((Bits.__int__()), self.imageDims[self.ref]["Nx"], self.imageDims[self.ref]["Ny"])
+            
+            # Affichage
+            self.label.setPixmap(QPixmap.fromImage(image))
+            self.resize(self.imageDims[self.ref]["Nx"], self.imageDims[self.ref]["Ny"])
+            self.setCentralWidget(self.label)
+            self.statusBar().showMessage("image blurred : " + self.imagePaths[self.ref])
+    
+    except FileNotFoundError :
+        self.statusBar().showMessage("File cannot be founded")
+        except UnboundLocalError :
+            self.statusBar().showMessage("probably no file loaded")
 
 
 
@@ -187,15 +276,3 @@ if __name__ == '__main__' :
     fen = Window()
     fen.show()
     app.exec_()
-
-### il faut régler le problème au sein des méthodes impliquant un changement de slice. L'idéal serait que les méthodes se comportent pareil
-### quelque soit le type d'image (raw ou tif), et que ce soit les paramètres extérieurs qui empechent les problèmes (du style inventés un Nz pour les fichier tif égal à 1).
-
-### Ajouter des tests
-### Commencer à rédiger le rapport/mode d'emploi (citer le site qui nous donne les Icones)
-### lié les fonctions setImage et createlabel en terme d'erreur dans le cas empty path (exception raise dans createLabel et raie dans setImage
-### L'image de ref et l'image principale sont indépendantes, on veut pouvoir accéder à des couches différentes
-### rajouter les fichiers C et les fichiers PyQt
-### attention : on vut pouvoir lire l'ensemble des tifs.
-
-### question lorsqu'on change de couche : on change de couche pour les deux images ou pas ? veut on accéder à des couches différentes de l'image de ref et de l'image principale ?

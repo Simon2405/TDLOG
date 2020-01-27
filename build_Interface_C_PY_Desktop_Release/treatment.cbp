@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="treatment"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\pybind11\;CMake Files\pybind11\tools\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\Library\;CMake Files\..\..\..\..\..\Library\Frameworks\;CMake Files\..\..\..\..\..\Library\Frameworks\Imagine.framework\;CMake Files\..\..\..\..\..\Library\Frameworks\Imagine.framework\Versions\;CMake Files\..\..\..\..\..\Library\Frameworks\Imagine.framework\Versions\Current\;CMake Files\..\..\..\..\..\Library\Frameworks\Imagine.framework\Versions\Current\Resources\;CMake Files\..\..\..\..\..\Library\Frameworks\Imagine.framework\Versions\Current\Resources\CMake\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="treatment">
+				<Option output="/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/treatment.cpython-37m-darwin.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/pybind11/include"/>
+					<Add directory="/Library/Frameworks/Python.framework/Versions/3.7/include/python3.7m"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 treatment"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="treatment/fast">
+				<Option output="/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/treatment.cpython-37m-darwin.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/pybind11/include"/>
+					<Add directory="/Library/Frameworks/Python.framework/Versions/3.7/include/python3.7m"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 treatment/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/simon/Documents/Interface_Graphique/build-Interface_C_PY-Desktop-Release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/treatment.cpp">
+			<Option target="treatment"/>
+		</Unit>
+		<Unit filename="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/pybind11/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\pybind11\"/>
+		</Unit>
+		<Unit filename="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/pybind11/tools/FindPythonLibsNew.cmake">
+			<Option virtualFolder="CMake Files\pybind11\tools\"/>
+		</Unit>
+		<Unit filename="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/pybind11/tools/pybind11Tools.cmake">
+			<Option virtualFolder="CMake Files\pybind11\tools\"/>
+		</Unit>
+		<Unit filename="/Users/simon/Documents/Interface_Graphique/Interface_C_PY/../../../../../Library/Frameworks/Imagine.framework/Versions/Current/Resources/CMake/ImagineConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\Library\Frameworks\Imagine.framework\Versions\Current\Resources\CMake\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
