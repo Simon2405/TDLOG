@@ -1,10 +1,8 @@
 import sys
 import yaml
+import Method
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QMenu, QAction, QPushButton
-from PyQt5.QtGui import QPixmap
 from PyQt5.Qt import QIcon
-
-from PIL import Image, ImageQt # pour installer la librairie PIL, tapper 'conda install PIL' dans un terminal
 
 app = QApplication.instance()
 if not app: # On ne peut avoir qu'une seule instance de QApplication ouverte à la fois
@@ -21,31 +19,32 @@ class Window(QMainWindow) : # QMainWindow offre un cadre propice au développeme
         self.move(400,100) # position
         
         # Initialisation de la barre de menu
-        self.__createFileMenu()
-        self.__createReferenceMenu()
-        self.__createImageProcessingMenu()
-        self.__createViewMenu()
-        self.__createPointsMenu()
-        self.__createAreaOperationsMenu()
+        Name = ["&File","&Reference","&View","&Image Processing","&Points","&Area Operations"]
+        Path = ["Fichiers YAML/File.txt","Fichiers YAML/Reference.txt","Fichiers YAML/View.txt","Fichiers YAML/ImageProcessing.txt","Fichiers YAML/Points.txt","Fichiers YAML/AreaOperations.txt"]
+        
+        for i in range(len(Name)) :
+            self.__createMenu(Name[i],Path[i])
         
         self.statusBar().showMessage("Welcome !")
         
         # Chargement d'une image
         label = QLabel()
-        image = Image.open('/Users/Simon/Documents/Projet TDLog/fichiers_TDLOG/beton_def_8b/beton_def_8b_000.tif')
+        path = "C:/Users/simon/OneDrive/Documents/Projet TDLog/fichiers_TDLOG/beton_def_8b.raw"
+        image = Method.choose_slice(200,path)
+        #image = Method.zoom(image,30,30,200,200)
         label.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(image)))
-        self.setCentralWidget(label)
     
-    
-    def __createFileMenu(self) :
-        # On définit les différents actions possible pour le menu File
-        with open("Fichiers YAML/File.txt") as file:
+    self.setCentralWidget(label)
+
+    def __createMenu(self,name,path) :
+        
+        with open(path) as file:
             data = yaml.full_load(file)
         mainMenu = self.menuBar()
-        file = mainMenu.addMenu("&File")
-        for i in range(len(data)) :
-            if data[i]=={'Kind': 'Separator'} :
-                file.addSeparator()
+        Menu = mainMenu.addMenu(name)
+for i in range(len(data)) :
+    if data[i]=={'Kind': 'Separator'} :
+        Menu.addSeparator()
             else :
                 act_i = QAction("unknown", self)
                 if data[i]["Image"]=="None" :
@@ -54,110 +53,8 @@ class Window(QMainWindow) : # QMainWindow offre un cadre propice au développeme
                     act_i = QAction(QIcon(data[i]["Image"]), data[i]["Title"], self)
                 act_i.setShortcut(data[i]["Shortcut"])
                 act_i.setStatusTip(data[i]["Status"])
-                
-                file.addAction(act_i)
-
-                    def __createReferenceMenu(self) :
-                        
-                        with open("Fichiers YAML/Reference.txt") as file:
-                            data = yaml.full_load(file)
-                                mainMenu = self.menuBar()
-                                reference = mainMenu.addMenu("&Reference")
-                                for i in range(len(data)) :
-                                    if data[i]=={'Kind': 'Separator'} :
-                                        reference.addSeparator()
-                                            else :
-                                                act_i = QAction("unknown", self)
-                                                if data[i]["Image"]=="None" :
-                                                    act_i = QAction(data[i]["Title"], self)
-                                                        else :
-                                                            act_i = QAction(QIcon(data[i]["Image"]), data[i]["Title"], self)
-                                                                act_i.setShortcut(data[i]["Shortcut"])
-                                                                act_i.setStatusTip(data[i]["Status"])
-                                                                
-                                                                    reference.addAction(act_i)
-                                                                        
-                                                                        
-                                                                        def __createImageProcessingMenu(self) :
-                                                                            
-                                                                            with open("Fichiers YAML/ImageProcessing.txt") as file:
-                                                                                data = yaml.full_load(file)
-                                                                                    mainMenu = self.menuBar()
-                                                                                    ImageProcessing = mainMenu.addMenu("&Image Processing")
-                                                                                    for i in range(len(data)) :
-                                                                                        if data[i]=={'Kind': 'Separator'} :
-                                                                                            ImageProcessing.addSeparator()
-                                                                                                else :
-                                                                                                    act_i = QAction("unknown", self)
-                                                                                                    if data[i]["Image"]=="None" :
-                                                                                                        act_i = QAction(data[i]["Title"], self)
-                                                                                                            else :
-                                                                                                                act_i = QAction(QIcon(data[i]["Image"]), data[i]["Title"], self)
-                                                                                                                    act_i.setShortcut(data[i]["Shortcut"])
-                                                                                                                    act_i.setStatusTip(data[i]["Status"])
-                                                                                                                    
-                                                                                                                        ImageProcessing.addAction(act_i)
-                                                                                                                            
-                                                                                                                            def __createViewMenu(self) :
-                                                                                                                                
-                                                                                                                                with open("Fichiers YAML/View.txt") as file:
-                                                                                                                                    data = yaml.full_load(file)
-                                                                                                                                        mainMenu = self.menuBar()
-                                                                                                                                        view = mainMenu.addMenu("&View")
-                                                                                                                                        for i in range(len(data)) :
-                                                                                                                                            if data[i]=={'Kind': 'Separator'} :
-                                                                                                                                                view.addSeparator()
-                                                                                                                                                    else :
-                                                                                                                                                        act_i = QAction("unknown", self)
-                                                                                                                                                        if data[i]["Image"]=="None" :
-                                                                                                                                                            act_i = QAction(data[i]["Title"], self)
-                                                                                                                                                                else :
-                                                                                                                                                                    act_i = QAction(QIcon(data[i]["Image"]), data[i]["Title"], self)
-                                                                                                                                                                        act_i.setShortcut(data[i]["Shortcut"])
-                                                                                                                                                                        act_i.setStatusTip(data[i]["Status"])
-                                                                                                                                                                        
-                                                                                                                                                                            view.addAction(act_i)
-                                                                                                                                                                                
-                                                                                                                                                                                
-                                                                                                                                                                                def __createPointsMenu(self) :
-                                                                                                                                                                                    
-                                                                                                                                                                                    with open("Fichiers YAML/Points.txt") as file:
-                                                                                                                                                                                        data = yaml.full_load(file)
-                                                                                                                                                                                            mainMenu = self.menuBar()
-                                                                                                                                                                                            points = mainMenu.addMenu("&Points")
-                                                                                                                                                                                            for i in range(len(data)) :
-                                                                                                                                                                                                if data[i]=={'Kind': 'Separator'} :
-                                                                                                                                                                                                    points.addSeparator()
-                                                                                                                                                                                                        else :
-                                                                                                                                                                                                            act_i = QAction("unknown", self)
-                                                                                                                                                                                                            if data[i]["Image"]=="None" :
-                                                                                                                                                                                                                act_i = QAction(data[i]["Title"], self)
-                                                                                                                                                                                                                    else :
-                                                                                                                                                                                                                        act_i = QAction(QIcon(data[i]["Image"]), data[i]["Title"], self)
-                                                                                                                                                                                                                            act_i.setShortcut(data[i]["Shortcut"])
-                                                                                                                                                                                                                            act_i.setStatusTip(data[i]["Status"])
-                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                points.addAction(act_i)
-                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                    def __createAreaOperationsMenu(self) :
-                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                        with open("Fichiers YAML/AreaOperations.txt") as file:
-                                                                                                                                                                                                                                            data = yaml.full_load(file)
-                                                                                                                                                                                                                                                mainMenu = self.menuBar()
-                                                                                                                                                                                                                                                AreaOperations = mainMenu.addMenu("&Area Operations")
-                                                                                                                                                                                                                                                for i in range(len(data)) :
-                                                                                                                                                                                                                                                    if data[i]=={'Kind': 'Separator'} :
-                                                                                                                                                                                                                                                        AreaOperations.addSeparator()
-                                                                                                                                                                                                                                                            else :
-                                                                                                                                                                                                                                                                act_i = QAction("unknown", self)
-                                                                                                                                                                                                                                                                if data[i]["Image"]=="None" :
-                                                                                                                                                                                                                                                                    act_i = QAction(data[i]["Title"], self)
-                                                                                                                                                                                                                                                                        else :
-                                                                                                                                                                                                                                                                            act_i = QAction(QIcon(data[i]["Image"]), data[i]["Title"], self)
-                                                                                                                                                                                                                                                                                act_i.setShortcut(data[i]["Shortcut"])
-                                                                                                                                                                                                                                                                                act_i.setStatusTip(data[i]["Status"])
-                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                    AreaOperations.addAction(act_i)
+    
+            Menu.addAction(act_i)
 
 
 
